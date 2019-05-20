@@ -1,0 +1,26 @@
+{
+  "name": "pelivspeli",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/matva92/PROYECTO-10---PELI-VS-PELI.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/matva92/PROYECTO-10---PELI-VS-PELI/issues"
+  },
+  "homepage": "https://github.com/matva92/PROYECTO-10---PELI-VS-PELI#readme",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
+    "express": "^4.16.4",
+    "mysql": "^2.17.1"
+  }
+}
