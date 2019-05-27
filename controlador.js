@@ -1,24 +1,19 @@
 var con = require("./conexionbd")
 
 function obtenerCompetencias(req, res){
-
-
     var sqlCompetencias = "SELECT * FROM competencias"
     var sqlCompetenciasCount = "SELECT COUNT(*) AS COUNT FROM competencias"
     
     con.query(sqlCompetencias, function(error, resultado, fields){
-        
         if(error){
             console.log("Hubo un error en la consulta", error.message)
             return res.status(404).send("Hubo un error en la consulta")
         }
-        
         con.query(sqlCompetenciasCount, function(error, resultado2, fields){
             if(error){
                 console.log("Hubo un error en la consulta", error.message)
                 return res.status(404).send("Hubo un error en la consulta")
             }
-            
             var response = {
                 'competencias': resultado,
                 'length': resultado2[0].COUNT
@@ -51,7 +46,6 @@ function obtenerOpciones(req, res){
             var response = {
                 ...competencia,
                 'peliculas': resultado2
-                
             }
             res.send(JSON.stringify(response))
         })
@@ -70,12 +64,8 @@ function agregarVoto(req, res){
             console.log("Hubo un error en la consulta", error.message)
             return res.status(404).send("Hubo un error en la consulta")
         }
-        
             res.send(console.log("Voto insertado correctamente."))
-    
     })
-
-
 }
 
 function obtenerResultados(req, res){
@@ -92,19 +82,12 @@ function obtenerResultados(req, res){
                 console.log("Hubo un error en la consulta", error.message)
                 return res.status(404).send("Hubo un error en la consulta")
             }
-            
-      
-
             var response = {
                 'competencia': idCompetencia,
                 'resultados': resultado
             }
-
-    
             res.send(JSON.stringify(response))
-        
         })
-
 }
 
 function crearCompetencia(req, res){
@@ -127,29 +110,29 @@ function crearCompetencia(req, res){
                 console.log("Hubo un error en la consulta", error.message)
                 return res.status(404).send("No se pudo procesar su pedido.")
             }
-            
-      
             res.send(console.log("Competencia creada correctamente."))    
-    
         })
-
     })
-
-    
-  
-
-    
-   
-    
-    
-
 }
+
+function reiniciarCompetencia(req, res){
+    var competenciaId = parseInt(req.params.id)
+    var sqlDelete = `DELETE FROM votos WHERE competencia_id = '` + competenciaId + `'`
+
+    con.query(sqlDelete, function(error, resultado, fields){
+        if(error){
+            console.log("Hubo un error en la consulta", error.message)
+            return res.status(404).send("No se pudo procesar la solicitud. Puede ser que la competencia no exista.")
+        }
+        res.send(console.log("Competencia reiniciada correctamente."))
+    }) 
+  }
 
 module.exports = {
     obtenerCompetencias: obtenerCompetencias,
     obtenerOpciones: obtenerOpciones,
     agregarVoto: agregarVoto,
     obtenerResultados: obtenerResultados,
-    crearCompetencia: crearCompetencia
-
+    crearCompetencia: crearCompetencia,
+    reiniciarCompetencia: reiniciarCompetencia
 }
