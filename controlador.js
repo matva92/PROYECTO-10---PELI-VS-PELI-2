@@ -107,9 +107,49 @@ function obtenerResultados(req, res){
 
 }
 
+function crearCompetencia(req, res){
+    
+    var nombreCompetencia = req.body.nombre
+    var sqlcompetenciasExistentes = `SELECT competencia FROM competencias WHERE competencia = '` + nombreCompetencia + `'`
+    var sqlNuevaCompetencia = `INSERT INTO competencias (competencia)
+    VALUES('`+ nombreCompetencia +`')`
+
+    con.query(sqlcompetenciasExistentes, function(error, resultado, fields){
+
+        if(resultado){
+            console.log("Hubo un error en la solicitud.")
+            return res.status(422).send('No se pudo procesar su pedido. Puede ser que ya exista una competencia con ese nombre.')
+        }
+
+        con.query(sqlNuevaCompetencia, function(error, resultado, fields){
+        
+            if(error){
+                console.log("Hubo un error en la consulta", error.message)
+                return res.status(404).send("No se pudo procesar su pedido.")
+            }
+            
+      
+            res.send(console.log("Competencia creada correctamente."))    
+    
+        })
+
+    })
+
+    
+  
+
+    
+   
+    
+    
+
+}
+
 module.exports = {
     obtenerCompetencias: obtenerCompetencias,
     obtenerOpciones: obtenerOpciones,
     agregarVoto: agregarVoto,
-    obtenerResultados: obtenerResultados
+    obtenerResultados: obtenerResultados,
+    crearCompetencia: crearCompetencia
+
 }
