@@ -1,5 +1,6 @@
 var express = require('express')
-var controlador = require('./controlador')
+var controladorCompetencia = require('./controladorCompetencia')
+var controladorGenero = require('./controladorGenero')
 var bodyParser = require('body-parser');
 var cors = require('cors');
 
@@ -13,13 +14,14 @@ app.use(bodyParser.urlencoded({
 
 app.use(bodyParser.json());
 
-app.get('/competencias', controlador.obtenerCompetencias)
-app.get('/competencias/:id/peliculas/', controlador.obtenerOpciones)
-app.post('/competencias/:id/voto', controlador.agregarVoto)
-app.get('/competencias/:id/resultados', controlador.obtenerResultados)
-app.post('/competencias', controlador.crearCompetencia)
-app.delete('/competencias/:id/votos', controlador.reiniciarCompetencia)
+app.get('/competencias', controladorCompetencia.obtenerCompetencias)
+app.get('/competencias/:id/peliculas/', controladorCompetencia.obtenerOpciones)
+app.post('/competencias/:id/voto', controladorCompetencia.agregarVoto)
+app.get('/competencias/:id/resultados', controladorCompetencia.obtenerResultados)
+app.post('/competencias', controladorCompetencia.crearCompetencia)
+app.delete('/competencias/:id/votos', controladorCompetencia.reiniciarCompetencia)
 
+app.get('/generos', controladorGenero.obtenerGenero)
 
 
 
