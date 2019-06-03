@@ -25,10 +25,26 @@ function obtenerCompetencias(req, res){
 
 function obtenerOpciones(req, res){
 
+    
     var idCompetencia = parseInt(req.params.id)
     var sqlCompetencia = "SELECT * FROM competencias WHERE id = " +  idCompetencia + ";"
-    // var sqlCompetenciaCount = "SELECT COUNT(*) AS COUNT FROM competencias WHERE id = " +  idCompetencia + ";"
+    // var sqlCompetenciaCount = "SELECT COUNT(*) AS COUNT FROM competencias WHERE id = " +  idCompetencia + ";"  
+    
+    var sqlGeneroCompetencia = "SELECT genero_id FROM competencias WHERE id = " + idCompetencia
     var sqlPeliculas = "SELECT * FROM pelicula ORDER BY RAND() LIMIT 2;"
+
+    con.query(sqlGeneroCompetencia, function(error, resultado, fields){
+        if(error){
+            console.log("Hubo un error en la consulta", error.message)
+            return res.status(404).send("Hubo un error en la consulta")
+        }
+
+        if(resultado[0].genero_id > 0){
+            sqlPeliculas = "SELECT * FROM pelicula WHERE genero_id = (SELECT genero_id FROM competencias WHERE id = " + idCompetencia +") ORDER BY RAND() LIMIT 2;"
+        }
+    })
+
+
 
     con.query(sqlCompetencia, function(error, resultado, fields){
         if(error){
@@ -91,15 +107,22 @@ function obtenerResultados(req, res){
 }
 
 function crearCompetencia(req, res){
-    
     var nombreCompetencia = req.body.nombre
+    var generoCompetencia = req.body.genero
+
+    console.log(generoCompetencia)
+
     var sqlcompetenciasExistentes = `SELECT competencia FROM competencias WHERE competencia = '` + nombreCompetencia + `'`
-    var sqlNuevaCompetencia = `INSERT INTO competencias (competencia)
-    VALUES('`+ nombreCompetencia +`')`
+    var sqlNuevaCompetencia = `INSERT INTO competencias (competencia, genero_id)
+     VALUES('`+ nombreCompetencia +`', '`+ generoCompetencia + `')`
+
+    if(generoCompetencia == 0){
+        sqlNuevaCompetencia = `INSERT INTO competencias (competencia)
+        VALUES('`+ nombreCompetencia +`')`
+    }
 
     con.query(sqlcompetenciasExistentes, function(error, resultado, fields){
-
-        if(resultado){
+        if(resultado[0] != undefined){
             console.log("Hubo un error en la solicitud.")
             return res.status(422).send('No se pudo procesar su pedido. Puede ser que ya exista una competencia con ese nombre.')
         }
