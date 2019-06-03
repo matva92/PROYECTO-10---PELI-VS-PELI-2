@@ -209,7 +209,7 @@ h1 {
 	background-color: #9C54B8;
 }
 
-.genero option {
+.genero  option, .director option, .actor option {
 	color: black;
 }
 

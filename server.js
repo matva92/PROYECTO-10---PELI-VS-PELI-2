@@ -1,6 +1,8 @@
 var express = require('express')
 var controladorCompetencia = require('./controladorCompetencia')
 var controladorGenero = require('./controladorGenero')
+var controladorDirector = require('./controladorDirector')
+var controladorActor = require('./controladorActor')
 var bodyParser = require('body-parser');
 var cors = require('cors');
 
@@ -22,6 +24,8 @@ app.post('/competencias', controladorCompetencia.crearCompetencia)
 app.delete('/competencias/:id/votos', controladorCompetencia.reiniciarCompetencia)
 
 app.get('/generos', controladorGenero.obtenerGenero)
+app.get('/directores', controladorDirector.obtenerDirector)
+app.get('/actores', controladorActor.obtenerActor)
 
 
 
