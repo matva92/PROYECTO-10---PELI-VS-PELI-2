@@ -28,19 +28,18 @@ function obtenerOpciones(req, res){
     
     var idCompetencia = parseInt(req.params.id)
     var sqlCompetencia = "SELECT * FROM competencias WHERE id = " +  idCompetencia + ";"
-    // var sqlCompetenciaCount = "SELECT COUNT(*) AS COUNT FROM competencias WHERE id = " +  idCompetencia + ";"  
-    
-    var sqlGeneroCompetencia = "SELECT genero_id FROM competencias WHERE id = " + idCompetencia
+      
+    var sqlparametrosCompetencia = "SELECT genero_id, director_id, actor_id FROM competencias WHERE id = " + idCompetencia
     var sqlPeliculas = "SELECT * FROM pelicula ORDER BY RAND() LIMIT 2;"
 
-    con.query(sqlGeneroCompetencia, function(error, resultado, fields){
+    con.query(sqlparametrosCompetencia, function(error, resultado, fields){
         if(error){
             console.log("Hubo un error en la consulta", error.message)
             return res.status(404).send("Hubo un error en la consulta")
         }
 
-        if(resultado[0].genero_id > 0){
-            sqlPeliculas = "SELECT * FROM pelicula WHERE genero_id = (SELECT genero_id FROM competencias WHERE id = " + idCompetencia +") ORDER BY RAND() LIMIT 2;"
+        if(resultado[0].genero_id > 0 && resultado[0].director_id > 0 && resultado[0].actor_id > 0){
+            sqlPeliculas = "SELECT * FROM pelicula WHERE genero_id = "+ resultado[0].genero_id +" AND director_id = " + resultado[0].director_id +" AND actor_id = " + resultado[0].actor_id + " ORDER BY RAND() LIMIT 2;"
         }
     })
 
@@ -109,16 +108,35 @@ function obtenerResultados(req, res){
 function crearCompetencia(req, res){
     var nombreCompetencia = req.body.nombre
     var generoCompetencia = req.body.genero
-
-    console.log(generoCompetencia)
+    var directorCompentencia = req.body.director
+    var actorCompetencia = req.body.actor
 
     var sqlcompetenciasExistentes = `SELECT competencia FROM competencias WHERE competencia = '` + nombreCompetencia + `'`
-    var sqlNuevaCompetencia = `INSERT INTO competencias (competencia, genero_id)
-     VALUES('`+ nombreCompetencia +`', '`+ generoCompetencia + `')`
+    
+    var sqlNuevaCompetencia = `INSERT INTO competencias (competencia, genero_id, director_id, actor_id)
+     VALUES('`+ nombreCompetencia +`', '`+ generoCompetencia + `', `+ directorCompentencia +`', '`+ actorCompetencia + `')`
 
-    if(generoCompetencia == 0){
+    if(generoCompetencia == 0 && directorCompentencia == 0 && actorCompetencia == 0){
         sqlNuevaCompetencia = `INSERT INTO competencias (competencia)
         VALUES('`+ nombreCompetencia +`')`
+    } else if(generoCompetencia > 0 && directorCompentencia == 0 && actorCompetencia == 0) {
+        sqlNuevaCompetencia = `INSERT INTO competencias (competencia, genero_id)
+     VALUES('`+ nombreCompetencia +`', '`+ generoCompetencia +`')`
+    } else if(generoCompetencia > 0 && directorCompentencia > 0 && actorCompetencia == 0){
+        sqlNuevaCompetencia = `INSERT INTO competencias (competencia, genero_id, director_id)
+     VALUES('`+ nombreCompetencia +`', '`+ generoCompetencia + `', '`+ directorCompentencia +`')`
+    } else if (generoCompetencia > 0 && directorCompentencia == 0 && actorCompetencia > 0){
+        sqlNuevaCompetencia = `INSERT INTO competencias (competencia, genero_id, actor_id)
+     VALUES('`+ nombreCompetencia +`', '`+ generoCompetencia + `', '`+ actorCompetencia + `')`
+    } else if(generoCompetencia == 0 && directorCompentencia > 0 && actorCompetencia > 0){
+        sqlNuevaCompetencia = `INSERT INTO competencias (competencia, director_id, actor_id)
+     VALUES('`+ nombreCompetencia +`', '` + directorCompentencia +`', '`+ actorCompetencia + `')`
+    } else if(generoCompetencia == 0 && directorCompentencia > 0 && actorCompetencia == 0){
+        sqlNuevaCompetencia = `INSERT INTO competencias (competencia, director_id)
+     VALUES('`+ nombreCompetencia +`', '` + directorCompentencia + `')`
+    } else {
+        sqlNuevaCompetencia = `INSERT INTO competencias (competencia, actor_id)
+     VALUES('`+ nombreCompetencia +`', '`+ actorCompetencia + `')`
     }
 
     con.query(sqlcompetenciasExistentes, function(error, resultado, fields){
