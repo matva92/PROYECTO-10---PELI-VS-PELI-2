@@ -33,38 +33,54 @@ function obtenerOpciones(req, res){
     var sqlPeliculas = "SELECT * FROM pelicula ORDER BY RAND() LIMIT 2;"
 
     con.query(sqlparametrosCompetencia, function(error, resultado, fields){
+        
+        console.log(resultado)
+
         if(error){
             console.log("Hubo un error en la consulta", error.message)
             return res.status(404).send("Hubo un error en la consulta")
         }
 
         if(resultado[0].genero_id > 0 && resultado[0].director_id > 0 && resultado[0].actor_id > 0){
-            sqlPeliculas = "SELECT * FROM pelicula WHERE genero_id = "+ resultado[0].genero_id +" AND director_id = " + resultado[0].director_id +" AND actor_id = " + resultado[0].actor_id + " ORDER BY RAND() LIMIT 2;"
-        }
-    })
-
-
-
-    con.query(sqlCompetencia, function(error, resultado, fields){
-        if(error){
-            console.log("Hubo un error en la consulta", error.message)
-            return res.status(404).send("Hubo un error en la consulta")
-        }
-        const competencia = resultado[0]
-
-        con.query(sqlPeliculas, function(error, resultado2, fields){
+            sqlPeliculas = "SELECT * FROM pelicula pe LEFT JOIN director_pelicula dp on dp.pelicula_id = pe.id LEFT JOIN actor_pelicula ap on ap.pelicula_id = pe.id WHERE genero_id = "+ resultado[0].genero_id +" AND director_id = " + resultado[0].director_id +" AND ap.actor_id = " + resultado[0].actor_id + " ORDER BY RAND() LIMIT 2;"
+        } else if (resultado[0].genero_id > 0 && resultado[0].director_id > 0 && resultado[0].actor_id == null){
+            sqlPeliculas = "SELECT * FROM pelicula pe LEFT JOIN director_pelicula dp on dp.pelicula_id = pe.id WHERE pe.genero_id = " + resultado[0].genero_id + " AND dp.director_id = " + resultado[0].director_id + " ORDER BY RAND() LIMIT 2;"
+        } else if (resultado[0].genero_id > 0 && resultado[0].director_id == null && resultado[0].actor_id > 0){
+            sqlPeliculas = "SELECT * FROM pelicula pe LEFT JOIN actor_pelicula ap on ap.pelicula_id = pe.id WHERE pe.genero_id = " + resultado[0].genero_id + " AND ap.actor_id = " + resultado[0].actor_id + " ORDER BY RAND() LIMIT 2;"
+        } else if (resultado[0].genero_id == null && resultado[0].director_id > 0 && resultado[0].actor_id > 0){
+            sqlPeliculas = "SELECT * FROM pelicula pe LEFT JOIN director_pelicula dp on dp.pelicula_id = pe.id LEFT JOIN actor_pelicula ap on ap.pelicula_id = pe.id WHERE dp.director_id = " + resultado[0].director_id + " AND ap.actor_id = " + resultado[0].actor_id + " ORDER BY RAND() LIMIT 2;"
+        } else if (resultado[0].genero_id == null && resultado[0].director_id == null && resultado[0].actor_id > 0){
+            sqlPeliculas = "SELECT * FROM pelicula pe LEFT JOIN actor_pelicula ap on ap.pelicula_id = pe.id WHERE ap.actor_id = " + resultado[0].actor_id + " ORDER BY RAND() LIMIT 2;"
+        } else if (resultado[0].genero_id == null && resultado[0].director_id > 0  && resultado[0].actor_id == null){
+            sqlPeliculas = "SELECT * FROM pelicula pe LEFT JOIN director_pelicula dp on dp.pelicula_id = pe.id  WHERE dp.director_id = " + resultado[0].director_id + " ORDER BY RAND() LIMIT 2;"
+        } else if (resultado[0].genero_id > null && resultado[0].director_id == null && resultado[0].actor_id == null){
+            sqlPeliculas = "SELECT * FROM pelicula pe  WHERE genero_id = " + resultado[0].genero_id + " ORDER BY RAND() LIMIT 2;"
+        } 
+        
+        con.query(sqlCompetencia, function(error, resultado, fields){
             if(error){
                 console.log("Hubo un error en la consulta", error.message)
                 return res.status(404).send("Hubo un error en la consulta")
             }
-            
-            var response = {
-                ...competencia,
-                'peliculas': resultado2
-            }
-            res.send(JSON.stringify(response))
+            const competencia = resultado[0]
+    
+            con.query(sqlPeliculas, function(error, resultado2, fields){
+                if(error){
+                    console.log("Hubo un error en la consulta", error.message)
+                    return res.status(404).send("Hubo un error en la consulta")
+                }
+                
+                var response = {
+                    ...competencia,
+                    'peliculas': resultado2
+                }
+                res.send(JSON.stringify(response))
+            })
         })
+        console.log(sqlPeliculas)
     })
+
+
 
 }
 
@@ -111,6 +127,8 @@ function crearCompetencia(req, res){
     var directorCompentencia = req.body.director
     var actorCompetencia = req.body.actor
 
+    console.log(req.body)
+
     var sqlcompetenciasExistentes = `SELECT competencia FROM competencias WHERE competencia = '` + nombreCompetencia + `'`
     
     var sqlNuevaCompetencia = `INSERT INTO competencias (competencia, genero_id, director_id, actor_id)
@@ -134,7 +152,11 @@ function crearCompetencia(req, res){
     } else if(generoCompetencia == 0 && directorCompentencia > 0 && actorCompetencia == 0){
         sqlNuevaCompetencia = `INSERT INTO competencias (competencia, director_id)
      VALUES('`+ nombreCompetencia +`', '` + directorCompentencia + `')`
-    } else {
+    } else if(generoCompetencia > 0 && directorCompentencia > 0 && actorCompetencia > 0){
+        sqlNuevaCompetencia = `INSERT INTO competencias (competencia, genero_id, director_id, actor_id)
+     VALUES('`+ nombreCompetencia +`', '`+ generoCompetencia +`', '`+ directorCompentencia +`', '` + actorCompetencia + `')`
+    } 
+    else {
         sqlNuevaCompetencia = `INSERT INTO competencias (competencia, actor_id)
      VALUES('`+ nombreCompetencia +`', '`+ actorCompetencia + `')`
     }
