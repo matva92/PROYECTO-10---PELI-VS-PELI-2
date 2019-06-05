@@ -17,6 +17,7 @@ app.use(bodyParser.urlencoded({
 app.use(bodyParser.json());
 
 app.get('/competencias', controladorCompetencia.obtenerCompetencias)
+app.get('/competencias/:id', controladorCompetencia.obtenerDetalleCompetencia)
 app.get('/competencias/:id/peliculas/', controladorCompetencia.obtenerOpciones)
 app.post('/competencias/:id/voto', controladorCompetencia.agregarVoto)
 app.get('/competencias/:id/resultados', controladorCompetencia.obtenerResultados)
@@ -26,6 +27,8 @@ app.delete('/competencias/:id/votos', controladorCompetencia.reiniciarCompetenci
 app.get('/generos', controladorGenero.obtenerGenero)
 app.get('/directores', controladorDirector.obtenerDirector)
 app.get('/actores', controladorActor.obtenerActor)
+
+app.delete('/competencias/:id', controladorCompetencia.eliminarCompetencia)
 
 
 

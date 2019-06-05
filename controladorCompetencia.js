@@ -34,7 +34,6 @@ function obtenerOpciones(req, res){
 
     con.query(sqlparametrosCompetencia, function(error, resultado, fields){
         
-        console.log(resultado)
 
         if(error){
             console.log("Hubo un error en la consulta", error.message)
@@ -77,7 +76,6 @@ function obtenerOpciones(req, res){
                 res.send(JSON.stringify(response))
             })
         })
-        console.log(sqlPeliculas)
     })
 
 
@@ -126,11 +124,7 @@ function crearCompetencia(req, res){
     var generoCompetencia = req.body.genero
     var directorCompentencia = req.body.director
     var actorCompetencia = req.body.actor
-
-    console.log(req.body)
-
     var sqlcompetenciasExistentes = `SELECT competencia FROM competencias WHERE competencia = '` + nombreCompetencia + `'`
-    
     var sqlNuevaCompetencia = `INSERT INTO competencias (competencia, genero_id, director_id, actor_id)
      VALUES('`+ nombreCompetencia +`', '`+ generoCompetencia + `', `+ directorCompentencia +`', '`+ actorCompetencia + `')`
 
@@ -191,11 +185,52 @@ function reiniciarCompetencia(req, res){
     }) 
   }
 
+  function eliminarCompetencia(req, res){
+    var competenciaId = parseInt(req.params.id)
+    var sqlDelete = "DELETE FROM competencias WHERE id = " + competenciaId
+
+      con.query(sqlDelete, function(error, resultado, fields){
+          if(error){
+              console.log("Hubo un error en la solicitud", error.message)
+              return res.status(404).send("No se pudo procesar la solicitud.")
+          }
+
+          res.send(console.log("Competencia eliminada correctamente."))
+      })
+  }
+
+  function obtenerDetalleCompetencia(req, res){
+
+   
+      var competenciaId = parseInt(req.params.id)
+      var sqlCompetencia = "SELECT competencias.competencia, genero.nombre as generoNombre, director.nombre as directorNombre, actor.nombre as actorNombre FROM competencias LEFT JOIN genero on genero.id = competencias.genero_id LEFT JOIN director on director.id = competencias.director_id LEFT JOIN actor on actor.id = competencias.actor_id WHERE competencias.id = " + competenciaId
+
+      con.query(sqlCompetencia, function(error, resultado, fields){
+          if(error){
+              console.log("Hubo un error en la consulta", error.message)
+              return res.status(404).send("No se pudo procesar la solicitud.")
+          }
+
+
+        var response = {
+            'nombre': resultado[0].competencia,
+            'genero_nombre': resultado[0].generoNombre,
+            'actor_nombre': resultado[0].actorNombre,
+            'director_nombre': resultado[0].directorNombre
+        }
+        
+
+        res.send(JSON.stringify(response))
+      })
+  }
+
 module.exports = {
     obtenerCompetencias: obtenerCompetencias,
     obtenerOpciones: obtenerOpciones,
     agregarVoto: agregarVoto,
     obtenerResultados: obtenerResultados,
     crearCompetencia: crearCompetencia,
-    reiniciarCompetencia: reiniciarCompetencia
+    reiniciarCompetencia: reiniciarCompetencia,
+    eliminarCompetencia: eliminarCompetencia,
+    obtenerDetalleCompetencia: obtenerDetalleCompetencia
 }
