@@ -81,7 +81,7 @@ function CompetenciasController () {
 		// Se obtienen de la api las opciones de películas
 		var opciones = $.getJSON(server+"/competencias/"+id+"/peliculas",
 	    function(data) {
-	    	// Se cargan las opciones en el DOM
+			// Se cargan las opciones en el DOM
 	    	self.cargarOpciones(id, data);
 	    });
 	},
@@ -93,7 +93,8 @@ function CompetenciasController () {
 			// Se selecciona el div que contiene la opción a cargar
 			var divOpcion = "#opcion"+(i+1);
 			// Se carga el valor del id de la película de la opción actual
-			$(divOpcion+" .idPelicula").val((opciones.peliculas)[i].id);
+			$(divOpcion+" .idPelicula").val((opciones.peliculas)[i].pelicula_id);
+		
 			// Se carga la imagen del poster de la película de la opción actual
 			$(divOpcion+" .poster").attr("src",(opciones.peliculas)[i].poster);
 			// Se carga el título de la película de la opción actual

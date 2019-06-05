@@ -83,10 +83,11 @@ function obtenerOpciones(req, res){
 }
 
 function agregarVoto(req, res){
+
     var idCompetencia = parseInt(req.params.id)
     var idPelicula = parseInt(req.body.idPelicula)
-
     var sqlVoto = "INSERT INTO votos (pelicula_id, competencia_id) VALUES (" + idPelicula + ", " + idCompetencia +")"
+
 
     con.query(sqlVoto, function(error, resultado, fields){
         if(error){
@@ -124,6 +125,7 @@ function crearCompetencia(req, res){
     var generoCompetencia = req.body.genero
     var directorCompentencia = req.body.director
     var actorCompetencia = req.body.actor
+    console.log(actorCompetencia)
     var sqlcompetenciasExistentes = `SELECT competencia FROM competencias WHERE competencia = '` + nombreCompetencia + `'`
     var sqlNuevaCompetencia = `INSERT INTO competencias (competencia, genero_id, director_id, actor_id)
      VALUES('`+ nombreCompetencia +`', '`+ generoCompetencia + `', `+ directorCompentencia +`', '`+ actorCompetencia + `')`
@@ -150,7 +152,7 @@ function crearCompetencia(req, res){
         sqlNuevaCompetencia = `INSERT INTO competencias (competencia, genero_id, director_id, actor_id)
      VALUES('`+ nombreCompetencia +`', '`+ generoCompetencia +`', '`+ directorCompentencia +`', '` + actorCompetencia + `')`
     } 
-    else {
+    else if (generoCompetencia == 0 && directorCompentencia == 0 && actorCompetencia > 0) {
         sqlNuevaCompetencia = `INSERT INTO competencias (competencia, actor_id)
      VALUES('`+ nombreCompetencia +`', '`+ actorCompetencia + `')`
     }
@@ -187,7 +189,9 @@ function reiniciarCompetencia(req, res){
 
   function eliminarCompetencia(req, res){
     var competenciaId = parseInt(req.params.id)
-    var sqlDelete = "DELETE FROM competencias WHERE id = " + competenciaId
+    var sqlDelete = "DELETE FROM votos WHERE competencia_id = " + competenciaId + "; DELETE FROM competencias WHERE id = " + competenciaId
+    
+
 
       con.query(sqlDelete, function(error, resultado, fields){
           if(error){
@@ -224,6 +228,24 @@ function reiniciarCompetencia(req, res){
       })
   }
 
+
+  function editarCompetencia(req, res){
+
+    var idCompetencia = parseInt(req.params.id)
+    var nombre = req.body.nombre
+    var sqlNombre = "UPDATE competencias SET competencia = '" + nombre + "' WHERE id = " + idCompetencia
+   
+
+    con.query(sqlNombre, function(error, resultado, fields){
+        if(error){
+            console.log("Hubo un error en la solicitud", error.message)
+            return res.status(404).send("No se pudo procesar la solicitud.")
+        }
+
+      res.send(console.log("Nombre actualizado correctamente."))
+    })
+}
+
 module.exports = {
     obtenerCompetencias: obtenerCompetencias,
     obtenerOpciones: obtenerOpciones,
@@ -232,5 +254,6 @@ module.exports = {
     crearCompetencia: crearCompetencia,
     reiniciarCompetencia: reiniciarCompetencia,
     eliminarCompetencia: eliminarCompetencia,
-    obtenerDetalleCompetencia: obtenerDetalleCompetencia
+    obtenerDetalleCompetencia: obtenerDetalleCompetencia,
+    editarCompetencia: editarCompetencia
 }

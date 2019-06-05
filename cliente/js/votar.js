@@ -2,6 +2,8 @@
 $(function() {
 	// Se obtiene el id en la URL usando la función en helpers.js
 	var idCompetencia = getQueryParam("id");
+
+	
 	// Se obtienen del backend y cargan en el DOM las opciones para votar
 	var competenciasController = new CompetenciasController();
 	competenciasController.obtenerOpciones(idCompetencia);
