@@ -30,7 +30,7 @@ function obtenerOpciones(req, res){
     var sqlCompetencia = "SELECT * FROM competencias WHERE id = " +  idCompetencia + ";"
       
     var sqlparametrosCompetencia = "SELECT genero_id, director_id, actor_id FROM competencias WHERE id = " + idCompetencia
-    var sqlPeliculas = "SELECT * FROM pelicula ORDER BY RAND() LIMIT 2;"
+    var sqlPeliculas = "SELECT *, id as pelicula_id FROM pelicula ORDER BY RAND() LIMIT 2;"
 
     con.query(sqlparametrosCompetencia, function(error, resultado, fields){
         
@@ -125,51 +125,89 @@ function crearCompetencia(req, res){
     var generoCompetencia = req.body.genero
     var directorCompentencia = req.body.director
     var actorCompetencia = req.body.actor
-    console.log(actorCompetencia)
     var sqlcompetenciasExistentes = `SELECT competencia FROM competencias WHERE competencia = '` + nombreCompetencia + `'`
+    var sqlPeliculasExistentes = `SELECT distinct pelicula.id FROM pelicula LEFT JOIN director on director.nombre = pelicula.director
+    LEFT JOIN actor_pelicula on actor_pelicula.pelicula_id = pelicula.id 
+    WHERE genero_id = ` + generoCompetencia + ` AND director.id = ` + directorCompentencia + ` AND actor_pelicula.actor_id = ` + actorCompetencia
     var sqlNuevaCompetencia = `INSERT INTO competencias (competencia, genero_id, director_id, actor_id)
      VALUES('`+ nombreCompetencia +`', '`+ generoCompetencia + `', `+ directorCompentencia +`', '`+ actorCompetencia + `')`
 
+
     if(generoCompetencia == 0 && directorCompentencia == 0 && actorCompetencia == 0){
         sqlNuevaCompetencia = `INSERT INTO competencias (competencia)
-        VALUES('`+ nombreCompetencia +`')`
+       VALUES('`+ nombreCompetencia +`')`
+        sqlPeliculasExistentes = `SELECT * FROM pelicula`
     } else if(generoCompetencia > 0 && directorCompentencia == 0 && actorCompetencia == 0) {
         sqlNuevaCompetencia = `INSERT INTO competencias (competencia, genero_id)
      VALUES('`+ nombreCompetencia +`', '`+ generoCompetencia +`')`
+        sqlPeliculasExistentes = `SELECT distinct pelicula.id FROM pelicula LEFT JOIN director on director.nombre = pelicula.director
+     LEFT JOIN actor_pelicula on actor_pelicula.pelicula_id = pelicula.id 
+     WHERE genero_id = ` + generoCompetencia
     } else if(generoCompetencia > 0 && directorCompentencia > 0 && actorCompetencia == 0){
         sqlNuevaCompetencia = `INSERT INTO competencias (competencia, genero_id, director_id)
      VALUES('`+ nombreCompetencia +`', '`+ generoCompetencia + `', '`+ directorCompentencia +`')`
+     sqlPeliculasExistentes = `SELECT distinct pelicula.id FROM pelicula LEFT JOIN director on director.nombre = pelicula.director
+    LEFT JOIN actor_pelicula on actor_pelicula.pelicula_id = pelicula.id 
+    WHERE genero_id = ` + generoCompetencia + ` AND director.id = ` + directorCompentencia
     } else if (generoCompetencia > 0 && directorCompentencia == 0 && actorCompetencia > 0){
         sqlNuevaCompetencia = `INSERT INTO competencias (competencia, genero_id, actor_id)
      VALUES('`+ nombreCompetencia +`', '`+ generoCompetencia + `', '`+ actorCompetencia + `')`
+     sqlPeliculasExistentes = `SELECT distinct pelicula.id FROM pelicula LEFT JOIN director on director.nombre = pelicula.director
+     LEFT JOIN actor_pelicula on actor_pelicula.pelicula_id = pelicula.id 
+     WHERE genero_id = ` + generoCompetencia +  ` AND actor_pelicula.actor_id = ` + actorCompetencia
     } else if(generoCompetencia == 0 && directorCompentencia > 0 && actorCompetencia > 0){
         sqlNuevaCompetencia = `INSERT INTO competencias (competencia, director_id, actor_id)
      VALUES('`+ nombreCompetencia +`', '` + directorCompentencia +`', '`+ actorCompetencia + `')`
+     sqlPeliculasExistentes = `SELECT distinct pelicula.id FROM pelicula LEFT JOIN director on director.nombre = pelicula.director
+     LEFT JOIN actor_pelicula on actor_pelicula.pelicula_id = pelicula.id 
+     WHERE director.id = ` + directorCompentencia + ` AND actor_pelicula.actor_id = ` + actorCompetencia
     } else if(generoCompetencia == 0 && directorCompentencia > 0 && actorCompetencia == 0){
         sqlNuevaCompetencia = `INSERT INTO competencias (competencia, director_id)
      VALUES('`+ nombreCompetencia +`', '` + directorCompentencia + `')`
+     sqlPeliculasExistentes = `SELECT distinct pelicula.id FROM pelicula LEFT JOIN director on director.nombre = pelicula.director
+     LEFT JOIN actor_pelicula on actor_pelicula.pelicula_id = pelicula.id 
+     WHERE director.id = ` + directorCompentencia
     } else if(generoCompetencia > 0 && directorCompentencia > 0 && actorCompetencia > 0){
         sqlNuevaCompetencia = `INSERT INTO competencias (competencia, genero_id, director_id, actor_id)
      VALUES('`+ nombreCompetencia +`', '`+ generoCompetencia +`', '`+ directorCompentencia +`', '` + actorCompetencia + `')`
+     sqlPeliculasExistentes = `SELECT distinct pelicula.id FROM pelicula LEFT JOIN director on director.nombre = pelicula.director
+     LEFT JOIN actor_pelicula on actor_pelicula.pelicula_id = pelicula.id 
+     WHERE genero_id = ` + generoCompetencia + ` AND director.id = ` + directorCompentencia + ` AND actor_pelicula.actor_id = ` + actorCompetencia
     } 
     else if (generoCompetencia == 0 && directorCompentencia == 0 && actorCompetencia > 0) {
         sqlNuevaCompetencia = `INSERT INTO competencias (competencia, actor_id)
      VALUES('`+ nombreCompetencia +`', '`+ actorCompetencia + `')`
+     sqlPeliculasExistentes = `SELECT distinct pelicula.id FROM pelicula LEFT JOIN director on director.nombre = pelicula.director
+     LEFT JOIN actor_pelicula on actor_pelicula.pelicula_id = pelicula.id 
+     WHERE actor_pelicula.actor_id = ` + actorCompetencia
     }
 
+ 
+
     con.query(sqlcompetenciasExistentes, function(error, resultado, fields){
+       
         if(resultado[0] != undefined){
             console.log("Hubo un error en la solicitud.")
             return res.status(422).send('No se pudo procesar su pedido. Puede ser que ya exista una competencia con ese nombre.')
         }
-
-        con.query(sqlNuevaCompetencia, function(error, resultado, fields){
-        
-            if(error){
-                console.log("Hubo un error en la consulta", error.message)
-                return res.status(404).send("No se pudo procesar su pedido.")
+        con.query(sqlPeliculasExistentes, function(error, resultado, fields){
+            console.log(sqlPeliculasExistentes)
+            console.log(resultado)
+            
+            if(resultado == undefined || resultado.length < 2){
+                console.log("Hubo un error en la solicitud.")
+                return res.status(422).send('No se pudo procesar su pedido. No hay suficientes películas para crear esta competencia.')
             }
-            res.send(console.log("Competencia creada correctamente."))    
+            
+            con.query(sqlNuevaCompetencia, function(error, resultado, fields){
+            
+                if(error){
+                    console.log("Hubo un error en la consulta", error.message)
+                    return res.status(404).send("No se pudo procesar su pedido.")
+                }
+                res.send(console.log("Competencia creada correctamente."))    
+            })
+
         })
     })
 }
@@ -191,8 +229,6 @@ function reiniciarCompetencia(req, res){
     var competenciaId = parseInt(req.params.id)
     var sqlDelete = "DELETE FROM votos WHERE competencia_id = " + competenciaId + "; DELETE FROM competencias WHERE id = " + competenciaId
     
-
-
       con.query(sqlDelete, function(error, resultado, fields){
           if(error){
               console.log("Hubo un error en la solicitud", error.message)
@@ -205,7 +241,6 @@ function reiniciarCompetencia(req, res){
 
   function obtenerDetalleCompetencia(req, res){
 
-   
       var competenciaId = parseInt(req.params.id)
       var sqlCompetencia = "SELECT competencias.competencia, genero.nombre as generoNombre, director.nombre as directorNombre, actor.nombre as actorNombre FROM competencias LEFT JOIN genero on genero.id = competencias.genero_id LEFT JOIN director on director.id = competencias.director_id LEFT JOIN actor on actor.id = competencias.actor_id WHERE competencias.id = " + competenciaId
 
@@ -227,7 +262,6 @@ function reiniciarCompetencia(req, res){
         res.send(JSON.stringify(response))
       })
   }
-
 
   function editarCompetencia(req, res){
 

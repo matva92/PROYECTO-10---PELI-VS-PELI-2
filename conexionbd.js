@@ -5,7 +5,7 @@ var connection = mysql.createConnection({
   port: '3306',
   user: 'root',
   password: 'Lenovo2026',
-  database: 'competencias',
+  database: 'prueba',
   multipleStatements: true
 });
 
