@@ -1,6 +1,6 @@
 var con = require("./conexionbd")
 
-function obtenerDirector(req,res){
+function obtenerDirector(req,res){ 
 
     
     var sqlDirectores = "SELECT * FROM director"

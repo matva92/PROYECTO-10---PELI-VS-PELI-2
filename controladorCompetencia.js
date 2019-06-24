@@ -6,13 +6,13 @@ function obtenerCompetencias(req, res){
     
     con.query(sqlCompetencias, function(error, resultado, fields){
         if(error){
-            console.log("Hubo un error en la consulta", error.message)
-            return res.status(404).send("Hubo un error en la consulta")
+            console.log("Error inesperado en el servidor", error.message)
+            return res.status(500).send("Error inesperado en el servidor")
         }
         con.query(sqlCompetenciasCount, function(error, resultado2, fields){
             if(error){
-                console.log("Hubo un error en la consulta", error.message)
-                return res.status(404).send("Hubo un error en la consulta")
+                console.log("Error inesperado en el servidor.", error.message)
+                return res.status(500).send("Error inesperado en el servidor.")
             }
             var response = {
                 'competencias': resultado,
@@ -36,8 +36,8 @@ function obtenerOpciones(req, res){
         
 
         if(error){
-            console.log("Hubo un error en la consulta", error.message)
-            return res.status(404).send("Hubo un error en la consulta")
+            console.log("Error inesperado en el servidor.", error.message)
+            return res.status(500).send("Error inesperado en el servidor.")
         }
 
         if(resultado[0].genero_id > 0 && resultado[0].director_id > 0 && resultado[0].actor_id > 0){
@@ -58,15 +58,15 @@ function obtenerOpciones(req, res){
         
         con.query(sqlCompetencia, function(error, resultado, fields){
             if(error){
-                console.log("Hubo un error en la consulta", error.message)
-                return res.status(404).send("Hubo un error en la consulta")
+                console.log("Error inesperado en el servidor.", error.message)
+                return res.status(500).send("Error inesperado en el servidor.")
             }
             const competencia = resultado[0]
     
             con.query(sqlPeliculas, function(error, resultado2, fields){
                 if(error){
-                    console.log("Hubo un error en la consulta", error.message)
-                    return res.status(404).send("Hubo un error en la consulta")
+                    console.log("Error inesperado en el servidor.", error.message)
+                    return res.status(500).send("Error inesperado en el servidor.")
                 }
                 
                 var response = {
@@ -91,8 +91,8 @@ function agregarVoto(req, res){
 
     con.query(sqlVoto, function(error, resultado, fields){
         if(error){
-            console.log("Hubo un error en la consulta", error.message)
-            return res.status(404).send("Hubo un error en la consulta")
+            console.log("Error inesperado en el servidor", error.message)
+            return res.status(500).send("Error inesperado en el servidor")
         }
             res.send(console.log("Voto insertado correctamente."))
     })
@@ -109,8 +109,8 @@ function obtenerResultados(req, res){
 
         con.query(sqlResultados, function(error, resultado, fields){
             if(error){
-                console.log("Hubo un error en la consulta", error.message)
-                return res.status(404).send("Hubo un error en la consulta")
+                console.log("Error inesperado en el servidor", error.message)
+                return res.status(500).send("Error inesperado en el servidor")
             }
             var response = {
                 'competencia': idCompetencia,
@@ -186,6 +186,11 @@ function crearCompetencia(req, res){
 
     con.query(sqlcompetenciasExistentes, function(error, resultado, fields){
        
+        if(error){
+            console.log("Error inesperado en el servidor.", error.message)
+            return res.status(500).send("No se pudo procesar su pedido.")
+        }
+
         if(resultado[0] != undefined){
             console.log("Hubo un error en la solicitud.")
             return res.status(422).send('No se pudo procesar su pedido. Puede ser que ya exista una competencia con ese nombre.')
@@ -202,8 +207,8 @@ function crearCompetencia(req, res){
             con.query(sqlNuevaCompetencia, function(error, resultado, fields){
             
                 if(error){
-                    console.log("Hubo un error en la consulta", error.message)
-                    return res.status(404).send("No se pudo procesar su pedido.")
+                    console.log("Error inesperado en el servidor.", error.message)
+                    return res.status(500).send("No se pudo procesar su pedido.")
                 }
                 res.send(console.log("Competencia creada correctamente."))    
             })
@@ -218,8 +223,8 @@ function reiniciarCompetencia(req, res){
 
     con.query(sqlDelete, function(error, resultado, fields){
         if(error){
-            console.log("Hubo un error en la consulta", error.message)
-            return res.status(404).send("No se pudo procesar la solicitud. Puede ser que la competencia no exista.")
+            console.log("Error inesperado en el servidor.", error.message)
+            return res.status(500).send("Error inesperado en el servidor.")
         }
         res.send(console.log("Competencia reiniciada correctamente."))
     }) 
@@ -231,8 +236,8 @@ function reiniciarCompetencia(req, res){
     
       con.query(sqlDelete, function(error, resultado, fields){
           if(error){
-              console.log("Hubo un error en la solicitud", error.message)
-              return res.status(404).send("No se pudo procesar la solicitud.")
+              console.log("Error inesperado en el servidor.", error.message)
+              return res.status(500).send("Error inesperado en el servidor.")
           }
 
           res.send(console.log("Competencia eliminada correctamente."))
@@ -246,8 +251,8 @@ function reiniciarCompetencia(req, res){
 
       con.query(sqlCompetencia, function(error, resultado, fields){
           if(error){
-              console.log("Hubo un error en la consulta", error.message)
-              return res.status(404).send("No se pudo procesar la solicitud.")
+              console.log("Error inesperado en el servidor.", error.message)
+              return res.status(500).send("Error inesperado en el servidor.")
           }
 
 
@@ -257,8 +262,7 @@ function reiniciarCompetencia(req, res){
             'actor_nombre': resultado[0].actorNombre,
             'director_nombre': resultado[0].directorNombre
         }
-        
-
+    
         res.send(JSON.stringify(response))
       })
   }
@@ -272,8 +276,8 @@ function reiniciarCompetencia(req, res){
 
     con.query(sqlNombre, function(error, resultado, fields){
         if(error){
-            console.log("Hubo un error en la solicitud", error.message)
-            return res.status(404).send("No se pudo procesar la solicitud.")
+            console.log("Error inesperado en el servidor.", error.message)
+            return res.status(500).send("Error inesperado en el servidor.")
         }
 
       res.send(console.log("Nombre actualizado correctamente."))
