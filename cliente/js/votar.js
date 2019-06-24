@@ -11,5 +11,7 @@ $(function() {
 	$(".pelicula").click(function() {
 		var voto = $(this).find('.idPelicula').val();
 		competenciasController.votar(idCompetencia, voto);
+		/* competenciasController.obtenerOpciones(idCompetencia); no sabia si había que actualizar las opciones
+		 al votar. */
 	});
 });

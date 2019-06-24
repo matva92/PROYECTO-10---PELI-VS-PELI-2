@@ -196,9 +196,7 @@ function crearCompetencia(req, res){
             return res.status(422).send('No se pudo procesar su pedido. Puede ser que ya exista una competencia con ese nombre.')
         }
         con.query(sqlPeliculasExistentes, function(error, resultado, fields){
-            console.log(sqlPeliculasExistentes)
-            console.log(resultado)
-            
+                        
             if(resultado == undefined || resultado.length < 2){
                 console.log("Hubo un error en la solicitud.")
                 return res.status(422).send('No se pudo procesar su pedido. No hay suficientes películas para crear esta competencia.')
